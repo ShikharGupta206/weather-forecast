@@ -1,322 +1,134 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Weather Dashboard</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Weather App</title>
+  <link rel="stylesheet" href="style.css" />
+  <script defer src="script.js"></script>
 
-<style>
-
-*{
-margin:0;
-padding:0;
-box-sizing:border-box;
-font-family:Segoe UI;
-}
-
-body{
-height:100vh;
-background:#0f172a;
-color:white;
-display:flex;
-}
-
-/* SIDEBAR */
-
-.sidebar{
-width:250px;
-background:#020617;
-padding:25px;
-display:flex;
-flex-direction:column;
-gap:20px;
-}
-
-.logo{
-font-size:22px;
-font-weight:bold;
-margin-bottom:10px;
-}
-
-.search-box input{
-width:100%;
-padding:10px;
-border:none;
-border-radius:6px;
-outline:none;
-}
-
-.search-box button{
-margin-top:10px;
-width:100%;
-padding:10px;
-border:none;
-background:#2563eb;
-color:white;
-border-radius:6px;
-cursor:pointer;
-}
-
-.sidebar-info{
-margin-top:20px;
-display:flex;
-flex-direction:column;
-gap:10px;
-font-size:14px;
-opacity:0.9;
-}
-
-/* MAIN DASHBOARD */
-
-.main{
-flex:1;
-padding:30px;
-display:flex;
-flex-direction:column;
-gap:25px;
-}
-
-/* TOP PANEL */
-
-.top{
-display:flex;
-justify-content:space-between;
-align-items:center;
-}
-
-.city{
-font-size:32px;
-font-weight:bold;
-}
-
-.temp{
-font-size:80px;
-font-weight:bold;
-}
-
-/* CARDS */
-
-.cards{
-display:grid;
-grid-template-columns:repeat(4,1fr);
-gap:20px;
-}
-
-.card{
-background:#1e293b;
-padding:20px;
-border-radius:10px;
-text-align:center;
-}
-
-/* HOURLY */
-
-.hourly{
-background:#1e293b;
-padding:20px;
-border-radius:10px;
-}
-
-.hour-list{
-display:flex;
-gap:20px;
-overflow-x:auto;
-margin-top:15px;
-}
-
-.hour{
-min-width:80px;
-text-align:center;
-}
-
-/* FORECAST */
-
-.forecast{
-display:grid;
-grid-template-columns:repeat(3,1fr);
-gap:20px;
-}
-
-.day{
-background:#1e293b;
-padding:20px;
-border-radius:10px;
-text-align:center;
-}
-
-</style>
+  <!-- font awesome for icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
 </head>
 
 <body>
 
-<div class="sidebar">
+  <!-- main wrapper of whole weather app -->
+  <div class="container">
 
-<div class="logo">Weather</div>
+    <!-- left side panel (search + current weather info) -->
+    <div class="weather-input">
 
-<div class="search-box">
-<input id="cityInput" placeholder="Search city">
-<button onclick="getWeather()">Search</button>
-<button onclick="getLocation()">Use Location</button>
-</div>
+      <!-- search bar + unit selector -->
+      <div class="input-group">
+        <input type="text" placeholder="Search for places..." id="userLocation" value="Delhi" />
 
-<div class="sidebar-info" id="extraInfo">
-<p>Humidity: --</p>
-<p>Wind: --</p>
-<p>Sunrise: --</p>
-<p>Sunset: --</p>
-</div>
+        <!-- celsius / fahrenheit switch -->
+        <select class="converter" id="converter">
+          <option>°C</option>
+          <option>°F</option>
+        </select>
 
-</div>
+        <!-- search icon button -->
+        <i class="fa fa-search" onclick="findUserLocation()"></i>
+      </div>
 
-<div class="main">
+      <!-- weather icon will come from js -->
+      <div class="weatherIcon"></div>
 
-<div class="top">
-<div>
-<div class="city" id="city">City</div>
-<div id="desc">Weather</div>
-</div>
+      <!-- temperature text -->
+      <h2 class="temperature"></h2>
 
-<div class="temp" id="temp">--°C</div>
-</div>
+      <!-- feels like section -->
+      <div class="feelsLike"></div>
 
-<div class="cards">
+      <!-- small weather description -->
+      <div class="description"></div>
 
-<div class="card">
-<h3>Feels Like</h3>
-<p id="feels">--</p>
-</div>
+      <!-- feels like planner -->
+      <div class="planner"></div>
 
-<div class="card">
-<h3>Humidity</h3>
-<p id="humidity">--</p>
-</div>
+      <hr />
 
-<div class="card">
-<h3>Wind</h3>
-<p id="wind">--</p>
-</div>
+      <!-- date and city name -->
+      <div class="date"></div>
+      <div class="city"></div>
 
-<div class="card">
-<h3>Pressure</h3>
-<p id="pressure">--</p>
-</div>
+      <!-- quick forecast strip -->
+      <div class="left-forecast-box">
+        <h3>Next Hours</h3>
+        <div class="left-forecast-strip" id="leftForecastStrip"></div>
+      </div>
+    </div>
 
-</div>
 
-<div class="hourly">
+    <!-- right side panel (highlights + weekly forecast) -->
+    <div class="weather-output">
+      <h2 class="heading">Today's Highlights</h2>
 
-<h3>Hourly Forecast</h3>
+      <!-- highlights cards container -->
+      <div class="Highlights">
 
-<div class="hour-list" id="hourlyList"></div>
+        <!-- humidity card -->
+        <div class="humidity">
+          Humidity
+          <i class="fa-solid fa-water"></i>
+          <h1 id="HValue"></h1>
+        </div>
 
-</div>
+        <!-- wind speed card -->
+        <div class="wind-speed">
+          Wind Speed
+          <i class="fa-solid fa-wind"></i>
+          <h1 id="WValue"></h1>
+        </div>
 
-<div class="forecast" id="forecast"></div>
+        <!-- sunrise + sunset block -->
+        <div class="sun">
+          <span>
+            <i class="fa-solid fa-sun"></i>
+            <p><span id="SRValue"></span>Sunrise</p>
+          </span>
+          <span>
+            <i class="fa-regular fa-sun"></i>
+            <p><span id="SSValue"></span>Sunset</p>
+          </span>
+        </div>
 
-</div>
+        <!-- clouds info -->
+        <div class="clouds">
+          Clouds
+          <i class="fa-solid fa-cloud"></i>
+          <h1 id="CValue"></h1>
+        </div>
 
-<script>
+        <!-- uv index card -->
+        <div class="uv-index">
+          UV Index
+          <i class="fa-solid fa-bacon"></i>
+          <h1 id="UVValue"></h1>
+        </div>
 
-async function loadWeather(city){
+        <!-- pressure card -->
+        <div class="pressure">
+          Pressure
+          <i class="fa-solid fa-volcano"></i>
+          <h1 id="PValue"></h1>
+        </div>
+      </div>
 
-const url=`https://wttr.in/${city}?format=j1`;
+      <br />
 
-const res=await fetch(url);
-const data=await res.json();
+      <!-- weekly forecast section -->
+      <h2 class="heading">This Week</h2>
 
-const current=data.current_condition[0];
-const weather=data.weather;
+      <!-- forecast cards will be generated by js -->
+      <div class="Forecast"></div>
+    </div>
 
-document.getElementById("city").innerText=city;
-document.getElementById("temp").innerText=current.temp_C+"°C";
-document.getElementById("desc").innerText=current.weatherDesc[0].value;
-
-document.getElementById("feels").innerText=current.FeelsLikeC+"°C";
-document.getElementById("humidity").innerText=current.humidity+"%";
-document.getElementById("wind").innerText=current.windspeedKmph+" km/h";
-document.getElementById("pressure").innerText=current.pressure+" mb";
-
-const sunrise=weather[0].astronomy[0].sunrise;
-const sunset=weather[0].astronomy[0].sunset;
-
-document.getElementById("extraInfo").innerHTML=`
-<p>Humidity: ${current.humidity}%</p>
-<p>Wind: ${current.windspeedKmph} km/h</p>
-<p>Sunrise: ${sunrise}</p>
-<p>Sunset: ${sunset}</p>
-`;
-
-let hourlyHTML="";
-
-for(let i=0;i<8;i++){
-
-const hour=weather[0].hourly[i];
-
-hourlyHTML+=`
-<div class="hour">
-<div>${hour.time/100}:00</div>
-<div>${hour.tempC}°C</div>
-</div>
-`;
-
-}
-
-document.getElementById("hourlyList").innerHTML=hourlyHTML;
-
-let forecastHTML="";
-
-for(let i=0;i<3;i++){
-
-forecastHTML+=`
-<div class="day">
-<h3>${weather[i].date}</h3>
-<p>${weather[i].avgtempC}°C</p>
-</div>
-`;
-
-}
-
-document.getElementById("forecast").innerHTML=forecastHTML;
-
-}
-
-function getWeather(){
-
-const city=document.getElementById("cityInput").value;
-
-if(city==="") return;
-
-loadWeather(city);
-
-}
-
-function getLocation(){
-
-navigator.geolocation.getCurrentPosition(async pos=>{
-
-const lat=pos.coords.latitude;
-const lon=pos.coords.longitude;
-
-const url=`https://wttr.in/${lat},${lon}?format=j1`;
-
-const res=await fetch(url);
-const data=await res.json();
-
-const city=data.nearest_area[0].areaName[0].value;
-
-loadWeather(city);
-
-});
-
-}
-
-document.getElementById("cityInput").addEventListener("keypress",e=>{
-if(e.key==="Enter") getWeather();
-});
-
-loadWeather("Lucknow");
-
-</script>
+  </div>
 
 </body>
+
 </html>
